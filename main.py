@@ -1,5 +1,6 @@
 import requests
 import sys
+import os
 from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, QScrollArea, QTextEdit, QProgressBar, QMessageBox
 
 class ConfigItem(QWidget):
@@ -50,7 +51,20 @@ class ConfigItem(QWidget):
         print("Path:", self.pathEdit.text())
         print("Text:", self.textEdit.text())
         print("Checkbox:", self.autoTimestamp.isChecked())
-        self.sendResult()
+
+
+        folder_path = self.pathEdit.text()
+        print(" source directory is: " + folder_path)
+        if (os.path.exists(folder_path) and os.path.isdir(folder_path)):
+            report_xml = os.path.join(folder_path, "report.xml")
+            if (os.path.exists(report_xml) and os.path.isfile(report_xml)):
+                # proc
+                # self.sendResult()
+                print("report xml exists: %s"%report_xml)
+            else:
+                QMessageBox.warning(None, "错误", "report.xml文件不存在")
+        else:
+            QMessageBox.warning(None, "错误", folder_path + "路径不存在")
         # 模拟进度条的进度
         for i in range(101):
             self.progressBar.setValue(i)
@@ -58,9 +72,6 @@ class ConfigItem(QWidget):
             # 在这里添加实际的发送逻辑
 
     def sendResult(self):
-        print(" source directory is: " + self.pathEdit.text())
-
-
         base_url = 'http://192.168.50.153:8194/tasks';
         url_params = {
             'address': '/home/aoi/aoi/run/results/gt-001/20240714/B_20240714060040972_1_NG',
