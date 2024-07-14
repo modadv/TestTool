@@ -1,6 +1,6 @@
 import requests
 import sys
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, QScrollArea, QTextEdit, QProgressBar
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, QScrollArea, QTextEdit, QProgressBar, QMessageBox
 
 class ConfigItem(QWidget):
     def __init__(self, parent=None):
@@ -14,8 +14,8 @@ class ConfigItem(QWidget):
         self.browseButton = QPushButton("Browse")
         self.browseButton.clicked.connect(self.browsePath)
         self.textEdit = QLineEdit()
-        self.checkBox = QCheckBox()
-        self.textLabel = QLabel("Label")
+        self.autoTimestamp = QCheckBox()
+        self.textLabel = QLabel("Auto set timestamp")
         self.deleteButton = QPushButton("Delete")
         self.deleteButton.clicked.connect(self.deleteSelf)
         self.sendButton = QPushButton("Send")
@@ -27,7 +27,7 @@ class ConfigItem(QWidget):
         layout.addWidget(self.pathEdit)
         layout.addWidget(self.browseButton)
         layout.addWidget(self.textEdit)
-        layout.addWidget(self.checkBox)
+        layout.addWidget(self.autoTimestamp)
         layout.addWidget(self.textLabel)
         layout.addWidget(self.deleteButton)
         layout.addWidget(self.sendButton)
@@ -49,7 +49,7 @@ class ConfigItem(QWidget):
         print("Sending configuration:")
         print("Path:", self.pathEdit.text())
         print("Text:", self.textEdit.text())
-        print("Checkbox:", self.checkBox.isChecked())
+        print("Checkbox:", self.autoTimestamp.isChecked())
         self.sendResult()
         # 模拟进度条的进度
         for i in range(101):
@@ -58,6 +58,9 @@ class ConfigItem(QWidget):
             # 在这里添加实际的发送逻辑
 
     def sendResult(self):
+        print(" source directory is: " + self.pathEdit.text())
+
+
         base_url = 'http://192.168.50.153:8194/tasks';
         url_params = {
             'address': '/home/aoi/aoi/run/results/gt-001/20240714/B_20240714060040972_1_NG',
@@ -97,7 +100,7 @@ class ConfigWindow(QWidget):
         layout.addWidget(self.logTextEdit)
 
         self.setLayout(layout)
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1280, 800)
         self.setWindowTitle("Configuration")
 
     def addConfig(self):
