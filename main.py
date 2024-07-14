@@ -1,7 +1,10 @@
 import requests
 import sys
 import os
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, QScrollArea, QTextEdit, QProgressBar, QMessageBox
+import xml.etree.ElementTree as ET
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, \
+    QPushButton, QFileDialog, QScrollArea, QTextEdit, QProgressBar, QMessageBox
+
 
 class ConfigItem(QWidget):
     def __init__(self, parent=None):
@@ -45,22 +48,30 @@ class ConfigItem(QWidget):
         self.setParent(None)
         self.deleteLater()
 
-    def sendConfig(self):
+    def sendConfig(self) -> None:
         # 在这里编写发送配置的逻辑
         print("Sending configuration:")
         print("Path:", self.pathEdit.text())
         print("Text:", self.textEdit.text())
         print("Checkbox:", self.autoTimestamp.isChecked())
 
-
         folder_path = self.pathEdit.text()
         print(" source directory is: " + folder_path)
-        if (os.path.exists(folder_path) and os.path.isdir(folder_path)):
+        if os.path.exists(folder_path) and os.path.isdir(folder_path):
             report_xml = os.path.join(folder_path, "report.xml")
-            if (os.path.exists(report_xml) and os.path.isfile(report_xml)):
-                # proc
-                # self.sendResult()
-                print("report xml exists: %s"%report_xml)
+            if os.path.exists(report_xml) and os.path.isfile(report_xml):
+                try:
+                    tree = ET.parse(report_xml)
+                    root = tree.getroot()
+
+                    # format
+                    ET.indent(tree, space="\t", level=0)
+                    formatted_xml = ET.tostring(root, encoding="unicode")
+
+                    print("Formatted XML:")
+                    print(formatted_xml)
+                except Exception as e:
+                    print(f"process report_xml error: {str(e)}")
             else:
                 QMessageBox.warning(None, "错误", "report.xml文件不存在")
         else:
@@ -71,7 +82,7 @@ class ConfigItem(QWidget):
             QApplication.processEvents()
             # 在这里添加实际的发送逻辑
 
-    def sendResult(self):
+    def sendResult(self) -> None:
         base_url = 'http://192.168.50.153:8194/tasks';
         url_params = {
             'address': '/home/aoi/aoi/run/results/gt-001/20240714/B_20240714060040972_1_NG',
@@ -117,6 +128,7 @@ class ConfigWindow(QWidget):
     def addConfig(self):
         configItem = ConfigItem()
         self.scrollLayout.addWidget(configItem)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
